@@ -1,0 +1,6 @@
+{
+  "googletest": {
+    "exclude": false,
+    "cmake_config": {}
+  }
+}

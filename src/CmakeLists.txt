@@ -1,0 +1,5 @@
+add_subdirectory(grafkit)
+
+if (GK_BUILD_PLAYER)
+  add_subdirectory(player)
+endif()

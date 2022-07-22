@@ -1,0 +1,64 @@
+# -- Normalize options
+
+if(GK_BUILD_BENCHMARKS AND NOT GK_BUILD_TESTS)
+  message(WARNNING "Benchmarks should be enabled with tests. Benchmarks will not be included in the project.")
+  set(GK_BUILD_BENCHMARKS OFF)
+endif()
+
+
+# -- Quality checks
+# Part of the test bench
+
+include(CTest)
+enable_testing()
+
+
+# ---
+add_subdirectory(unittests)
+
+# add_subdirectory(test_it)
+# add_dependencies(IntegrationTests ${DEPLOY_TEST})
+
+# if(GK_BUILD_EDITOR)
+  # # add_subdirectory(test_editor) # this one suxx
+  # # add_dependencies(EditorTest ${DEPLOY_TEST})
+  # # add_memcheck(EditorTest)
+# endif()
+
+# Add all tests to a single target https://stackoverflow.com/questions/733475/cmake-ctest-make-test-doesnt-build-tests
+add_custom_target(
+  check
+  COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIGURATION>
+  DEPENDS ${PROJECT_NAME}-UnitTests IntegrationTests
+          # EditorTest # TODO: Fix this part # ...
+)
+
+# if(GK_BUILD_EDITOR)
+  # # add_dependencies(EditorTest check)
+# endif()
+
+set_target_properties(check PROPERTIES FOLDER tests)
+
+# QA part
+
+# if (NOT GK_NO_TEST_QA_CHECK)
+
+  # include(cppcheck)
+  # include(memcheck)
+
+  # add_memcheck(UnitTests)
+# # add_memcheck(IntegrationTests)
+
+  # add_custom_target(qa-check)
+  # add_dependencies(qa-check cppcheck)
+  # if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # # Not going to work on multi-config environment
+    # add_dependencies(qa-check memcheck)
+    # add_dependencies(memcheck check)
+  # endif()
+
+  # set_target_properties(qa-check PROPERTIES FOLDER tests/qa)
+  # set_target_properties(cppcheck PROPERTIES FOLDER tests/qa)
+  # set_target_properties(memcheck PROPERTIES FOLDER tests/qa)
+
+# endif()

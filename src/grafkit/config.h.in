@@ -1,0 +1,12 @@
+#pragma once 
+
+namespace Grafkit::Version {
+static constexpr std::string_view ProjectName = "@PROJECT_NAME@";
+static constexpr std::string_view ProjectVersion = "@PROJECT_VERSION@";
+static constexpr int ProjectVersionMajor { @PROJECT_VERSION_MAJOR@ };
+static constexpr int ProjectVersionMinor { @PROJECT_VERSION_MINOR@ };
+static constexpr int ProjectVersionPatch { @PROJECT_VERSION_PATCH@ };
+static constexpr int ProjectVersionTweak { @PROJECT_VERSION_TWEAK@ };
+static constexpr std::string_view GitSha = "@GIT_SHA@";
+}// namespace Grafkit::Version
+

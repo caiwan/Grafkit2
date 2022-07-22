@@ -1,0 +1,16 @@
+fail_fast: false
+repos:
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5 
+    hooks:
+      - id: clang-format
+        args: [--style=file, -i]
+      # - id: clang-tidy
+      #  args: [-fix]
+      # - id: cppcheck
+      # - id: include-what-you-use
+  - repo: https://github.com/cheshirekow/cmake-format-precommit
+    rev: v0.6.13
+    hooks:
+      - id: cmake-format
+      # - id: cmake-lint

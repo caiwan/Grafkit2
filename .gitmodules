@@ -1,0 +1,18 @@
+[submodule "thirdparties/googletest"]
+	path = thirdparties/googletest
+	url = git@github.com:google/googletest.git
+[submodule "thirdparties/spdlog"]
+	path = thirdparties/spdlog
+	url = git@github.com:gabime/spdlog.git
+[submodule "thirdparties/bullet3"]
+	path = thirdparties/bullet3
+	url = git@github.com:bulletphysics/bullet3.git
+[submodule "thirdparties/assimp"]
+	path = thirdparties/assimp
+	url = git@github.com:assimp/assimp.git
+[submodule "thirdparties/nlohmann_json"]
+	path = thirdparties/nlohmann_json
+	url = git@github.com:nlohmann/json.git
+[submodule "thirdparties/stb/stb"]
+	path = thirdparties/stb/stb
+	url = git@github.com:nothings/stb.git

@@ -1,0 +1,41 @@
+# ----------------------------------------------------------------------------------------
+# -- 3. Player
+# ----------------------------------------------------------------------------------------
+project(
+  Player
+  VERSION 3.0.1.0
+  LANGUAGES C CXX
+)
+
+include(ProjectWarnings)
+include(Win32Subsystem)
+
+
+file(GLOB_RECURSE PLAYER_SOURCE_FILES
+      *.cpp
+      *.c
+      *.inc
+  )
+
+file(GLOB_RECURSE PLAYER_HEADER_FILES
+      *.h
+      *.hpp
+      *.inl
+  )
+
+file(GLOB_RECURSE PLAYER_RC_FILES
+      *.rc
+  )
+
+add_executable(${PROJECT_NAME} ${PLAYER_SOURCE_FILES} ${PLAYER_HEADER_FILES} ${PLAYER_RC_FILES})
+
+target_link_libraries(${PROJECT_NAME}
+  Grafkit::Grafkit
+)
+
+set_project_warnings(${PROJECT_NAME})
+set_windows_subsystem(${PROJECT_NAME})
+
+target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}")
+
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
