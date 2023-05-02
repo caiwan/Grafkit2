@@ -1,12 +1,6 @@
 #include "application.h"
 #include "fwzSetup.h"
 
-#ifdef _DEBUG
-constexpr int isWindowed = 1;
-#else
-constexpr int isWindowed = 0;
-#endif
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
 {
 	fwzSettings setup;
@@ -17,14 +11,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	setup.nMultisample = 0;
 
 	setup.nAlwaysOnTop = 1;
+
+#ifndef _DEBUG
 	setup.scrWidth = GetSystemMetrics(SM_CXSCREEN);
 	setup.scrHeight = GetSystemMetrics(SM_CYSCREEN);
-	setup.nWindowed = isWindowed;
+	setup.nWindowed = 0;
+#else
+	setup.scrWidth = 640;
+	setup.scrHeight = 480;
+	setup.nWindowed = 1;
+#endif
 
-	if (!OpenSetupDialog(&setup)) return -1;
+	if (!OpenSetupDialog(&setup))
+		return -1;
 
 	Application app(setup);
 	return app.Execute();
 }
 
-int main() { WinMain(nullptr, nullptr, nullptr, 0); }
+int main() { return WinMain(nullptr, nullptr, nullptr, 0); }

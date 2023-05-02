@@ -13,12 +13,13 @@ JobSystem::MemoryPoolAllocator::MemoryPoolAllocator(size_t numElements, size_t e
 {
 	mHead.store(nullptr);
 	const bool result = AllocatePool(numElements, elementSize, alignment);
-	if (!result) throw std::bad_alloc();
+	if (!result)
+		throw std::bad_alloc();
 }
 
 JobSystem::MemoryPoolAllocator::~MemoryPoolAllocator() { ReleasePool(); }
 
-bool JobSystem::MemoryPoolAllocator::AllocatePool(size_t numElements, size_t elementSize, size_t alignment)
+bool JobSystem::MemoryPoolAllocator::AllocatePool(const size_t numElements, const size_t elementSize, const size_t alignment)
 {
 	// guarantees that this pool was not allocated before
 	assert(mPool == nullptr);
@@ -27,7 +28,7 @@ bool JobSystem::MemoryPoolAllocator::AllocatePool(size_t numElements, size_t ele
 	mAlignment = alignment;
 
 	// element size must be at least the same size of void*
-	assert(mElementSize >= sizeof(void *));
+	assert(mElementSize >= sizeof(void*));
 	// element size must be a multiple of the alignment requirement
 	assert(mElementSize % mAlignment == 0);
 	// alignment must be a power of two
@@ -35,12 +36,13 @@ bool JobSystem::MemoryPoolAllocator::AllocatePool(size_t numElements, size_t ele
 
 	// --- allocate
 	mPoolSize = (mElementSize * numElements) /*+ alignment*/;
-	mPool = aligned_malloc(mElementSize * numElements, mAlignment);
-	if (mPool == nullptr) return false;
+	mPool = AlignedMalloc(mElementSize * numElements, mAlignment);
+	if (mPool == nullptr)
+		return false;
 
 	// ---
 	// cast the void* to void**, so the memory is 'interpret' as a buffer of void*
-	void ** freeMemoryList = static_cast<void **>(mPool);
+	void** freeMemoryList = static_cast<void**>(mPool);
 	mHead.store(freeMemoryList);
 	// get the address of the end of the memory block
 	const auto endAddress = reinterpret_cast<uintptr_t>(freeMemoryList) + (elementSize * numElements);
@@ -48,55 +50,60 @@ bool JobSystem::MemoryPoolAllocator::AllocatePool(size_t numElements, size_t ele
 	for (size_t element = 0; element < numElements; ++element)
 	{
 		// get the addresses of the current chunck and the next one
-		const auto currAddress = reinterpret_cast<uintptr_t>(freeMemoryList) + element * mElementSize;
+		const auto currentAddress = reinterpret_cast<uintptr_t>(freeMemoryList) + element * mElementSize;
 		//    const auto currAddress = static_cast<char*>(freeMemoryList) + element * mElementSize;
-		const auto nextAddress = currAddress + mElementSize;
+		const auto nextAddress = currentAddress + mElementSize;
 		// cast the address of the current chunk to a void**
-		void ** currMemory = reinterpret_cast<void **>(currAddress);
+		void** currentMemory = reinterpret_cast<void**>(currentAddress);
 		if (nextAddress >= endAddress)
 		{ // last chunk
-			*currMemory = nullptr;
+			*currentMemory = nullptr;
 		}
 		else
 		{
-			*currMemory = reinterpret_cast<void *>(nextAddress);
+			*currentMemory = reinterpret_cast<void*>(nextAddress); // NOLINT
 		}
 	}
 	return true;
 }
 
-void * JobSystem::MemoryPoolAllocator::Allocate() noexcept
+void* JobSystem::MemoryPoolAllocator::Allocate() noexcept
 {
 	assert(mPool);
 
-	void ** head = nullptr;
-	void ** next = nullptr;
-	void * block = nullptr;
+	void** head = nullptr;
+	void** next = nullptr;
+	void* block = nullptr;
 
-	do {
+	do
+	{
 		head = mHead.load(std::memory_order_relaxed);
 		// Pool is full
-		if (!head) return nullptr;
+		if (!head)
+			return nullptr;
 		// Take a block out and tyr to move the head
-		block = reinterpret_cast<void *>(head);
-		next = static_cast<void **>(*head);
+		block = reinterpret_cast<void*>(head);
+		next = static_cast<void**>(*head);
 		// If the head was changed by another thread, do it again
 	} while (!mHead.compare_exchange_weak(head, next, std::memory_order_relaxed));
 
 	return block;
 }
 
-void JobSystem::MemoryPoolAllocator::Deallocate(void * block) noexcept
+void JobSystem::MemoryPoolAllocator::Deallocate(void* block) noexcept
 {
-	if (block == nullptr) { return; }
+	if (block == nullptr)
+	{
+		return;
+	}
 
-	// TODO disallow taking pointef rom outside the valid address space
+	// TODO disallow taking pointed rom outside the valid address space
 
 	assert(mPool);
 
-	void ** head = nullptr;
-	void ** prev = nullptr;
-	void ** returningBlock = nullptr; // where the returning block will point at as a next block (to restore freelist)
+	void** head = nullptr;
+	void** prev = nullptr;
+	void** returningBlock = nullptr; // where the returning block will point at as a next block (to restore freelist)
 
 	while (true)
 	{
@@ -106,13 +113,13 @@ void JobSystem::MemoryPoolAllocator::Deallocate(void * block) noexcept
 		{
 			returningBlock = nullptr;
 			// the free list was empty set the head to the returning block then mark as the last one
-			prev = reinterpret_cast<void **>(block);
+			prev = reinterpret_cast<void**>(block); // NOLINT
 		}
 		else
 		{
 			// otherwise put back to the queue as is
 			returningBlock = head;
-			prev = reinterpret_cast<void **>(block);
+			prev = reinterpret_cast<void**>(block); // NOLINT
 		}
 
 		// Only mark when change could be committed, otherwise try it again
@@ -126,6 +133,6 @@ void JobSystem::MemoryPoolAllocator::Deallocate(void * block) noexcept
 
 void JobSystem::MemoryPoolAllocator::ReleasePool()
 {
-	aligned_free(mPool);
+	AlignedFree(mPool);
 	mPool = mHead = nullptr;
 }

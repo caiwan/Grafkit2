@@ -8,29 +8,29 @@ class MemoryPool : public testing::Test
 {
 };
 
-TEST_F(MemoryPool, allocate)
+TestF(MemoryPool, allocate)
 {
 	JobSystem::MemoryPoolAllocator allocator(256, 16, 16);
-	void * memory = allocator.Allocate();
+	void* memory = allocator.Allocate();
 	ASSERT_TRUE(memory);
 	allocator.Deallocate(memory);
 }
 
-TEST_F(MemoryPool, overflow)
+TestF(MemoryPool, overflow)
 {
 	JobSystem::MemoryPoolAllocator allocator(256, 16, 16);
 
 	for (size_t i = 0; i < 256; ++i)
 	{
-		void * memory = allocator.Allocate();
+		void* memory = allocator.Allocate();
 		ASSERT_TRUE(memory);
 	}
 
-	void * memory = allocator.Allocate();
+	void* memory = allocator.Allocate();
 	ASSERT_FALSE(memory);
 }
 
-TEST_F(MemoryPool, raceConditions)
+TestF(MemoryPool, raceConditions)
 {
 
 	// given
@@ -48,7 +48,7 @@ TEST_F(MemoryPool, raceConditions)
 		threads.emplace_back([&]() {
 			for (int i = 0; i < 100000; ++i)
 			{
-				void * memory = allocator.Allocate();
+				void* memory = allocator.Allocate();
 				ASSERT_TRUE(memory);
 				allocator.Deallocate(memory);
 				// TODO this particulalry does nothing relevant
@@ -56,5 +56,8 @@ TEST_F(MemoryPool, raceConditions)
 		});
 	}
 
-	for (auto & thread : threads) { thread.join(); }
+	for (auto& thread : threads)
+	{
+		thread.join();
+	}
 }

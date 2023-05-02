@@ -1,8 +1,8 @@
 #pragma once
 
-#include "BoundedMpmcQueue.h"
-#include "MemoryPoolAllocator.h"
-#include "ThreadPlatform.h"
+#include <grafkit/threadpool/BoundedMpmcQueue.h>
+#include <grafkit/threadpool/MemoryPoolAllocator.h>
+#include <grafkit/threadpool/ThreadPlatform.h>
 
 #include <cstddef>
 #include <memory>
@@ -16,9 +16,9 @@ namespace JobSystem
 		struct Job;
 		struct Worker;
 
-		typedef void (*JobFunction)(Job *, void *);
+		typedef void (*JobFunction)(Job*, void*);
 
-		typedef BoundedMpmcQueue<Job *> JobQueue;
+		typedef BoundedMpmcQueue<Job*> JobQueue;
 
 		constexpr size_t cachelineSize = 64;
 		typedef char CachelinePadType[cachelineSize];
@@ -37,32 +37,32 @@ namespace JobSystem
 			explicit ThreadPool(size_t numThreads);
 			virtual ~ThreadPool();
 
-			ThreadPool(const ThreadPool &) = delete;
-			ThreadPool & operator=(const ThreadPool &) = delete;
+			ThreadPool(const ThreadPool&) = delete;
+			ThreadPool& operator=(const ThreadPool&) = delete;
 
 			size_t NumWorkers() const { return mNumWorkers; }
 
-			Job * CreateJob(JobFunction function, void * data);
-			Job * CreateJobAsChild(Job * parent, JobFunction function, void * data);
+			Job* CreateJob(JobFunction function, void* data);
+			Job* CreateJobAsChild(Job* parent, JobFunction function, void* data);
 
-			void Schedule(Job * job);
-			void Wait(Job * job);
+			void Schedule(Job* job);
+			void Wait(Job* job);
 
 		protected:
-			Job * AllocateJob();
-			void Deallocate(Job * job);
-			void Steal(JobQueue *& stolenQueue);
+			Job* AllocateJob();
+			void Deallocate(Job* job);
+			void Steal(JobQueue*& stolenQueue);
 
-			Worker * FindWorker();
+			Worker* FindWorker();
 
-			Job * GetJob();
+			Job* GetJob();
 
-			void Execute(Job * job);
-			void Finish(Job * job);
+			void Execute(Job* job);
+			void Finish(Job* job);
 
 			static void Yield() NOEXCEPT;
 
-			bool HasJobCompleted(const Job * job);
+			bool HasJobCompleted(const Job* job);
 
 		private:
 			size_t mNumWorkers;
@@ -85,8 +85,8 @@ namespace JobSystem
 		struct Job
 		{
 			JobFunction function;
-			Job * parent;
-			void * data;
+			Job* parent;
+			void* data;
 			std::atomic_char32_t unfinishedJobs;
 			CachelinePadType padding;
 		};

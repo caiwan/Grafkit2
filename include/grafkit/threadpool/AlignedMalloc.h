@@ -9,8 +9,8 @@ extern "C"
 {
 #endif
 
-	void * aligned_malloc(size_t size, size_t alignment);
-	void aligned_free(void * pointer);
+	void* AlignedMalloc(size_t size, size_t alignment);
+	void AlignedFree(void* pointer);
 
 #ifdef __cplusplus
 }

@@ -15,4 +15,4 @@ typedef struct
 	HINSTANCE hInstance;
 } fwzSettings;
 
-int OpenSetupDialog(fwzSettings * setup);
+int OpenSetupDialog(fwzSettings* setup);

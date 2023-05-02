@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-namespace Grafkit
+namespace Grafkit::Core
 {
 	/**
 	  Base window class
@@ -21,8 +21,8 @@ namespace Grafkit
 	class Window
 	{
 	public:
-		explicit Window(const std::string & title);
-		explicit Window(const std::string && title);
+		explicit Window(const std::string& title);
+		explicit Window(const std::string&& title);
 		explicit Window();
 
 		~Window();
@@ -37,8 +37,8 @@ namespace Grafkit
 
 		bool PeekWindowMessage();
 
-		void SetTitle(const std::string & txt);
-		void SetTitle(const std::string && txt);
+		void SetTitle(const std::string& txt);
+		void SetTitle(const std::string&& txt);
 
 		[[nodiscard]] int Width() const { return mWindowWidth; }
 		[[nodiscard]] int Height() const { return mWindowHeight; }
@@ -52,7 +52,10 @@ namespace Grafkit
 		HDC NativeDeviceContext() const { return mDeviceContext; }
 
 		bool PublishMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-		void SubscribeMessage(const std::function<bool(HWND, UINT, WPARAM, LPARAM)> callback) { mSubscribers.push_back(std::move(callback)); }
+		void SubscribeMessage(const std::function<bool(HWND, UINT, WPARAM, LPARAM)> callback)
+		{
+			mSubscribers.push_back(std::move(callback));
+		}
 
 	private:
 		/// Common constructor

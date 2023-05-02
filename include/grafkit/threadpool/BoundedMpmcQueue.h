@@ -11,12 +11,12 @@ namespace JobSystem
 	public:
 		BoundedMpmcQueue(size_t bufferSize);
 		~BoundedMpmcQueue();
-		BoundedMpmcQueue(BoundedMpmcQueue const &) = delete;
+		BoundedMpmcQueue(BoundedMpmcQueue const&) = delete;
 
-		void operator=(BoundedMpmcQueue const &) = delete;
+		void operator=(BoundedMpmcQueue const&) = delete;
 
-		bool Push(T const & data);
-		bool Pop(T & data);
+		bool Push(T const& data);
+		bool Pop(T& data);
 
 		bool IsEmpty() const noexcept;
 
@@ -37,28 +37,34 @@ namespace JobSystem
 		static size_t const cachelineSize = 64;
 		typedef char CachelinePadType[cachelineSize];
 
-		CachelinePadType pad0_{};
-		Cell * const mBuffer;
+		CachelinePadType pad0_ {};
+		Cell* const mBuffer;
 		size_t const mBufferMask;
-		volatile CachelinePadType pad1_{};
-		std::atomic<size_t> mBottom{};
-		volatile CachelinePadType pad2_{};
-		std::atomic<size_t> mTop{};
-		volatile CachelinePadType pad3_{};
+		volatile CachelinePadType pad1_ {};
+		std::atomic<size_t> mBottom {};
+		volatile CachelinePadType pad2_ {};
+		std::atomic<size_t> mTop {};
+		volatile CachelinePadType pad3_ {};
 	};
 
-	template <typename T> BoundedMpmcQueue<T>::BoundedMpmcQueue(size_t bufferSize) : mBuffer(new Cell[bufferSize]), mBufferMask(bufferSize - 1)
+	template <typename T>
+	BoundedMpmcQueue<T>::BoundedMpmcQueue(size_t bufferSize)
+		: mBuffer(new Cell[bufferSize])
+		, mBufferMask(bufferSize - 1)
 	{
 		assert((bufferSize >= 2) && ((bufferSize & (bufferSize - 1)) == 0));
-		for (size_t i = 0; i != bufferSize; i += 1) { mBuffer[i].sequence.store(i, std::memory_order_relaxed); }
+		for (size_t i = 0; i != bufferSize; i += 1)
+		{
+			mBuffer[i].sequence.store(i, std::memory_order_relaxed);
+		}
 		mBottom.store(0, std::memory_order_relaxed);
 		mTop.store(0, std::memory_order_relaxed);
 	}
 	template <typename T> BoundedMpmcQueue<T>::~BoundedMpmcQueue() { delete[] mBuffer; }
 
-	template <typename T> bool BoundedMpmcQueue<T>::Push(const T & data)
+	template <typename T> bool BoundedMpmcQueue<T>::Push(const T& data)
 	{
-		Cell * cell = nullptr;
+		Cell* cell = nullptr;
 		size_t pos = mBottom.load(std::memory_order_relaxed);
 		for (;;)
 		{
@@ -67,7 +73,8 @@ namespace JobSystem
 			intptr_t dif = (intptr_t)seq - (intptr_t)pos;
 			if (dif == 0)
 			{
-				if (mBottom.compare_exchange_weak(pos, pos + 1, std::memory_order_relaxed)) break;
+				if (mBottom.compare_exchange_weak(pos, pos + 1, std::memory_order_relaxed))
+					break;
 			}
 			else if (dif < 0)
 				return false;
@@ -79,9 +86,9 @@ namespace JobSystem
 		return true;
 	}
 
-	template <typename T> bool BoundedMpmcQueue<T>::Pop(T & data)
+	template <typename T> bool BoundedMpmcQueue<T>::Pop(T& data)
 	{
-		Cell * cell;
+		Cell* cell;
 		size_t pos = mTop.load(std::memory_order_relaxed);
 		for (;;)
 		{
@@ -90,7 +97,8 @@ namespace JobSystem
 			intptr_t dif = (intptr_t)seq - (intptr_t)(pos + 1);
 			if (dif == 0)
 			{
-				if (mTop.compare_exchange_weak(pos, pos + 1, std::memory_order_relaxed)) break;
+				if (mTop.compare_exchange_weak(pos, pos + 1, std::memory_order_relaxed))
+					break;
 			}
 			else if (dif < 0)
 				return false;

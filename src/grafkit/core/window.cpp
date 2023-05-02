@@ -1,39 +1,49 @@
-#include <cassert>
+//#include <wingdi.h>
 #include <cstdlib>
 #include <tchar.h>
 //
-#include <grafkit/core/window.h>
+#include <grafkit/core/Exceptions.h>
+#include <grafkit/core/Window.h>
+
+#include <Windows.h>
+
 //============================================================================================================
 // Window handler and callback
 //============================================================================================================
 #define LRWAPI LRESULT WINAPI
-typedef LRWAPI windowCallBackProc_t(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 
-using namespace Grafkit;
+using namespace Grafkit::Core;
+using namespace Exceptions;
 
-namespace Grafkit
+namespace
 {
 	LRWAPI window_callback_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 
-	Window * gWindow;
+	Window* gWindow;
 
 	LRWAPI window_callback_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	{
 		// Publish all messages
-		if (gWindow && gWindow->PublishMessage(hwnd, msg, wp, lp)) return true;
+		if (gWindow && gWindow->PublishMessage(hwnd, msg, wp, lp))
+			return true;
 
 		// Maintain default functionality
 		switch (msg)
 		{
-			case WM_DESTROY: PostQuitMessage(0); return 0;
-			case WM_CLOSE: PostQuitMessage(0); return 0;
+		case WM_DESTROY:
+			PostQuitMessage(0);
+			return 0;
+		case WM_CLOSE:
+			PostQuitMessage(0);
+			return 0;
 
-			default: break;
+		default:
+			break;
 		}
 
 		return DefWindowProc(hwnd, msg, wp, lp);
 	}
-} // namespace Grafkit
+}
 
 //============================================================================================================
 // Window class
@@ -41,22 +51,23 @@ namespace Grafkit
 
 Window::Window(/*WindowHandler * handler*/) //: mCallbackHandler(handler)
 {
-	assert(!gWindow);
+	ThrowIfFailed(!gWindow, "A global window already had been created.");
 	gWindow = this;
 	RegisterWindow();
 }
 
-Window::Window(/*WindowHandler * handler, */ const std::string & title) //: mCallbackHandler(handler)
+Window::Window(/*WindowHandler * handler, */ const std::string& title) //: mCallbackHandler(handler)
 {
-	assert(!gWindow);
+	// assert(!gWindow);
+	ThrowIfFailed(!gWindow, "A global window already had been created.");
 	gWindow = this;
 	mTitle.assign(title);
 	RegisterWindow();
 }
 
-Window::Window(/*WindowHandler * handler, */ const std::string && title) //: mCallbackHandler(handler)
+Window::Window(/*WindowHandler * handler, */ const std::string&& title) //: mCallbackHandler(handler)
 {
-	assert(!gWindow);
+	ThrowIfFailed(!gWindow, "A global window already had been created.");
 	gWindow = this;
 	mTitle.assign(title);
 	RegisterWindow();
@@ -66,7 +77,8 @@ bool Window::PublishMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	for (const auto subscriber : mSubscribers)
 	{
-		if (subscriber(hWnd, msg, wParam, lParam)) return true;
+		if (subscriber(hWnd, msg, wParam, lParam))
+			return true;
 	}
 	return false;
 }
@@ -135,18 +147,19 @@ void Window::InitWindow(int sx, int sy, int isfullscreen)
 
 	const auto windowTitle = mTitle.c_str();
 
-	mWindowHandler = CreateWindowEx(windowExStyle,
-	    _T("Engine"),
-	    windowTitle,
-	    windowStyle | windowFrame,
-	    windowRect.top,
-	    windowRect.left,
-	    windowRect.right,
-	    windowRect.bottom,
-	    nullptr,
-	    nullptr,
-	    GetModuleHandle(nullptr),
-	    nullptr);
+	mWindowHandler = CreateWindowEx(
+		windowExStyle,
+		_T("Engine"),
+		windowTitle,
+		windowStyle | windowFrame,
+		windowRect.top,
+		windowRect.left,
+		windowRect.right,
+		windowRect.bottom,
+		nullptr,
+		nullptr,
+		GetModuleHandle(nullptr),
+		nullptr);
 
 	if (mWindowHandler == nullptr)
 	{
@@ -220,18 +233,19 @@ bool Window::PeekWindowMessage()
 	{
 		TranslateMessage(&uMsg);
 		DispatchMessage(&uMsg);
-		if (uMsg.message == WM_QUIT) quit = true;
+		if (uMsg.message == WM_QUIT)
+			quit = true;
 	}
 	return quit;
 }
 
-void Window::SetTitle(const std::string & txt)
+void Window::SetTitle(const std::string& txt)
 {
 	mTitle.assign(txt);
 	SetWindowText(mWindowHandler, mTitle.c_str());
 }
 
-void Window::SetTitle(const std::string && txt)
+void Window::SetTitle(const std::string&& txt)
 {
 	mTitle.assign(txt);
 	SetWindowText(mWindowHandler, mTitle.c_str());

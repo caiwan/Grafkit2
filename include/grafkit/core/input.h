@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Grafkit
+namespace Grafkit::Core
 {
 	class Input
 	{

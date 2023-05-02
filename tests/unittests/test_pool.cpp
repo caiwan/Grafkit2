@@ -14,9 +14,9 @@ struct TestJobData
 	size_t result;
 };
 
-void TestJobFunction(Job * job, void * rawData)
+void TestJobFunction(Job* job, void* rawData)
 {
-	TestJobData * data = reinterpret_cast<TestJobData *>(rawData);
+	auto* data = reinterpret_cast<TestJobData*>(rawData);
 	data->result = data->counter + 1;
 }
 
@@ -31,11 +31,11 @@ TEST(PoolTest, PoolTest)
 	JobSystem::MemoryPoolAllocator allocator(maxJobCount, sizeof(TestJobData));
 
 	// When
-	Job * jobs[maxJobCount] = {};
+	Job* jobs[maxJobCount] = {};
 	size_t counter = 0;
-	for (Job *& job : jobs)
+	for (Job*& job : jobs)
 	{
-		auto * data = reinterpret_cast<TestJobData *>(allocator.Allocate());
+		auto* data = reinterpret_cast<TestJobData*>(allocator.Allocate());
 		ASSERT_TRUE(data);
 
 		data->counter = counter++;
@@ -48,10 +48,10 @@ TEST(PoolTest, PoolTest)
 	}
 
 	// Then
-	for (Job *& job : jobs)
+	for (Job*& job : jobs)
 	{
 		threadPool.Wait(job);
-		auto * data = reinterpret_cast<TestJobData *>(job->data);
+		auto* data = reinterpret_cast<TestJobData*>(job->data);
 		ASSERT_TRUE(data->result = data->counter + 1);
 		allocator.Deallocate(job->data);
 	}

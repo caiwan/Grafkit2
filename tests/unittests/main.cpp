@@ -11,7 +11,7 @@ using ::testing::UnitTest;
 
 constexpr size_t loggerPoolBuggerSize = 16 * 8192;
 
-int main(int argc, char ** argv)
+auto main(int argc, char** argv) -> int
 {
 	InitGoogleTest(&argc, argv);
 	const int res = RUN_ALL_TESTS();

@@ -30,8 +30,10 @@ file(GLOB_RECURSE GRAFKIT_HEADER_FILES
 configure_file("config.h.in" "${CMAKE_BINARY_DIR}/configured_files/internal_use_only/include/grafkit/internal/config.h" ESCAPE_QUOTES)
 list(APPEND GRAFKIT_HEADER_FILES "${CMAKE_BINARY_DIR}/configured_files/internal_use_only/include/grafkit/internal/config.h")
 
-
-add_library(${PROJECT_NAME} STATIC ${GRAFKIT_SOURCE_FILES} ${GRAFKIT_HEADER_FILES})
+add_library(
+	${PROJECT_NAME} STATIC
+	${GRAFKIT_SOURCE_FILES} ${GRAFKIT_HEADER_FILES}
+)
 
 add_library(Grafkit::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
@@ -47,18 +49,17 @@ target_link_libraries(${PROJECT_NAME}
   PRIVATE
     # stb::stb
     # spdlog::spdlog
-    
-    # TODO: Crate an adapter/plugin lib for these instead of linking it directly
-    # CONAN_PKG::lua
-    # CONAN_PKG::sol2
 
     # CONAN_PKG::assimp
     # CONAN_PKG::bullet3
 
     # bass
+    # TODO
 
-  #PRIVATE
-	#project_warnings
+    d3d11.lib
+    dxgi.lib
+    dxguid.lib
+    d3dcompiler.lib
 )
 
 set_project_warnings(${PROJECT_NAME})

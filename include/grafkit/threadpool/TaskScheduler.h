@@ -10,17 +10,18 @@ namespace JobSystem
 	public:
 		TaskScheduler();
 
-		//    template<typename FunctionType, typename... Args> std::future<typename std::result_of<FunctionType(Args...)>::type> Async(FunctionType && job,
-		//    Args &&... args);
+		//    template<typename FunctionType, typename... Args> std::future<typename std::result_of<FunctionType(Args...)>::type>
+		//    Async(FunctionType && job, Args &&... args);
 
 		// ------------------------------------------------------------------------------------------------------------------
 
-		//  template<typename FunctionType, typename... Args> std::future<typename std::result_of<FunctionType(Args...)>::type> ThreadPool::Async(FunctionType
+		//  template<typename FunctionType, typename... Args> std::future<typename std::result_of<FunctionType(Args...)>::type>
+		//  ThreadPool::Async(FunctionType
 		//  && job, Args &&... args)
 		//  {
 		//    using ReturnType = typename std::result_of<FunctionType(Args...)>::type;
-		//    auto task = std::make_shared<std::packaged_task<ReturnType()>>(std::bind(std::forward<FunctionType>(job), std::forward<Args>(args)...));
-		//    std::future<ReturnType> res = task->get_future();
+		//    auto task = std::make_shared<std::packaged_task<ReturnType()>>(std::bind(std::forward<FunctionType>(job),
+		//    std::forward<Args>(args)...)); std::future<ReturnType> res = task->get_future();
 
 		// TODO:
 		//    if (mIsStop) throw std::runtime_error("Cannot add new tasks to a stopped ThreadPool");

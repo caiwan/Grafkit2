@@ -1,0 +1,7 @@
+Restructure:
+	☐ Remove GameCore
+	☐ Remove GameInput and Input
+	☐
+
+Fix:
+	☐ Enable WSTRING support
